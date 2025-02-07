@@ -48,9 +48,15 @@ private:
         _hub->sendCLI(b.value);
     }
 
+    static void staticPropertyHandler(gh::Build& b) {
+        if (_instance) {
+            _instance->handlePropertyChange(b);
+        }
+    }
+
     void buildControl(gh::Builder& b) {
         b.Title("Boiler control");
-        b.Slider_(HeatingSPName, &_setups).label("Heating setpoint").range(38, 75, 0.1).unit(" °C").attach([this](gh::Build& build) { this->handlePropertyChange(build); });
+        b.Slider_(HeatingSPName, &_setups).label("Heating setpoint").range(38, 75, 0.1).unit(" °C").attach(staticPropertyHandler);
         b.Slider_(HeatingSPFSName, &_setups).label("Heating setpoint in FS").range(38, 75, 0.1).unit(" °C");
         b.Slider_(DhwSPName, &_setups).label("Heating setpoint").range(38, 60, 1).unit(" °C");
         {
@@ -89,6 +95,7 @@ private:
         }
     }
 
+    static ViewHandler* _instance;
     PairsFile _setups;
     GyverHub* _hub;
     BoilerEbusController* _controller;
@@ -101,6 +108,7 @@ public:
     ViewHandler(GyverHub& hub, BoilerEbusController& controller) {
         _hub = &hub;
         _controller = &controller;
+        _instance = this;
     }
 
     void Setup() {
