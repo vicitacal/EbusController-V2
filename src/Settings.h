@@ -48,11 +48,11 @@
 #define GH_NO_HTTP_UPLOAD_PORTAL  // упрощённую загрузку файлов с ip/hub/upload_portal (для esp)
 #endif
 
-#define HeatingSPName "HeatingSP"
-#define HeatingSPFSName "HeatingSPFS"
-#define DhwSPName "DhwSP"
-#define HeatingENName "HeatingEN"
-#define DhwENName "DhwEN"
+#define HeatingSpIndex 1
+#define HeatingSpFsIndex 2
+#define DhwSpIndex 3
+#define HeatingEnIndex 4
+#define DhwEnIndex 5
 
 #define ProgramVersion "1.0.0"
 #define TX_ADAPTER 0  // GPIO0 (D3)
@@ -65,3 +65,6 @@
 
 #define AP_SSID "Vitaya"
 #define AP_PASS "789654_As"
+
+#define STR_HELPER(x) #x
+#define STR(x) STR_HELPER(x)

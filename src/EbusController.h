@@ -3,6 +3,7 @@
 #include "BoilerData.h"
 #include "ModbusMaster.h"
 #include "GyverHub.h"
+#include <Settings.h>
 
 enum adapterCommand : uint8_t {
 
@@ -47,11 +48,11 @@ enum boilerRegister : uint8_t {
 
 enum boilerSetting : uint8_t {
 
-    heatingSetpoint         = 1,
-    fsHeatingSetpoint       = 2,
-    dhwSetpoint             = 3,
-    heatingEn               = 4,
-    dhwEn                   = 5
+    heatingSetpoint         = HeatingSpIndex,
+    fsHeatingSetpoint       = HeatingSpFsIndex,
+    dhwSetpoint             = DhwSpIndex,
+    heatingEn               = HeatingEnIndex,
+    dhwEn                   = DhwEnIndex
     
 };
 
@@ -71,7 +72,8 @@ public:
     BoilerEbusController(ModbusMaster &master);
     uint8_t updateState();
     uint8_t syncronizeSettings();
-    uint8_t setValue(boilerRegister option, uint16_t value);
+    uint8_t writeValue(boilerRegister option, uint16_t value);
+    void setSetting(su::AnyText option, uint16_t value);
     void setSetting(boilerSetting setting, uint16_t value);
     void printState();
 

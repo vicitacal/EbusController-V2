@@ -44,8 +44,7 @@ private:
     }
 
     void handlePropertyChange(gh::Build& b) {
-        _hub->sendCLI(b.name); 
-        _hub->sendCLI(b.value);
+
     }
 
     static void staticPropertyHandler(gh::Build& b) {
@@ -56,13 +55,13 @@ private:
 
     void buildControl(gh::Builder& b) {
         b.Title("Boiler control");
-        b.Slider_(HeatingSPName, &_setups).label("Heating setpoint").range(38, 75, 0.1).unit(" °C").attach(staticPropertyHandler);
-        b.Slider_(HeatingSPFSName, &_setups).label("Heating setpoint in FS").range(38, 75, 0.1).unit(" °C");
-        b.Slider_(DhwSPName, &_setups).label("Heating setpoint").range(38, 60, 1).unit(" °C");
+        b.Slider_(STR(HeatingSpIndex), &_setups).label("Heating setpoint").range(38, 75, 0.1).unit(" °C").attach(staticPropertyHandler);
+        b.Slider_(STR(HeatingSpFsIndex), &_setups).label("Heating setpoint in FS").range(38, 75, 0.1).unit(" °C").attach(staticPropertyHandler);
+        b.Slider_(STR(DhwSpIndex), &_setups).label("Heating setpoint").range(38, 60, 1).unit(" °C").attach(staticPropertyHandler);
         {
             gh::Row r(b);
-            b.Switch_(HeatingENName, &_setups).label("Heating enable");
-            b.Switch_(DhwENName, &_setups).label("DHW enable");
+            b.Switch_(STR(HeatingEnIndex), &_setups).label("Heating enable").attach(staticPropertyHandler);
+            b.Switch_(STR(DhwEnIndex), &_setups).label("DHW enable").attach(staticPropertyHandler);
         }
         if (_writeDataStatus != ModbusMaster::ku8MBSuccess) {
             b.Text(BoilerErrors::GetConnectionErrorDescription(_writeDataStatus)).label("Write data error");

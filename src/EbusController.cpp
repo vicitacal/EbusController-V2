@@ -24,12 +24,18 @@ uint8_t BoilerEbusController::updateState() {
 
 }
 
-uint8_t BoilerEbusController::setValue(boilerRegister option, uint16_t value) {
+uint8_t BoilerEbusController::writeValue(boilerRegister option, uint16_t value) {
 
     _master->clearTransmitBuffer();
     _master->setTransmitBuffer(0, value);
     return _master->writeMultipleRegisters(option, 1);
 
+}
+
+void BoilerEbusController::setSetting(su::AnyText option, uint16_t value) {
+
+    setSetting((boilerSetting)option.toInt16(), value);
+    
 }
 
 void BoilerEbusController::setSetting(boilerSetting setting, uint16_t value) {
