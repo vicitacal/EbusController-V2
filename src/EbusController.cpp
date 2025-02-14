@@ -4,7 +4,6 @@ BoilerEbusController::BoilerEbusController(ModbusMaster &master) {
     
     _master = &master;
     State = reinterpret_cast<BoilerData*>(_rawData);
-    _master->writeMultipleRegisters();
 
 }
 
@@ -84,5 +83,21 @@ uint8_t BoilerEbusController::syncronizeSettings() {
 }
 
 void BoilerEbusController::printState() {
-    Serial.println(State->GetBoilerData());
+    Serial.println(State->ToString());
+}
+
+String BoilerEbusController::getRawDataString() {
+    String result;
+    for (uint8_t i = 0; i < RawDataSize; i++) {
+        result += to_hex(_rawData[i]);
+    }
+    return result;
+}
+
+String BoilerEbusController::getRawSetupsString() {
+    String result;
+    for (uint8_t i = 0; i < RawDataSize; i++) {
+        result += to_hex(_rawData[i]);
+    }
+    return result;
 }

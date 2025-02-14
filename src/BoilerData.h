@@ -1,4 +1,3 @@
-
 #include "Arduino.h"
 #define SECONDS_IN_MINUTE 60;
 #define SECONDS_IN_HOUR 3600;
@@ -35,7 +34,7 @@ struct BoilerData {
     uint16_t modelCode;
     uint16_t errorFlags;
 
-    String GetBoilerData() {
+    String ToString() {
         String result;
         result += "Boiler Data:\n";
         result += "Reboot Code: " + String(rebootCode) + "\n";

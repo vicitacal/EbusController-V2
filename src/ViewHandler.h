@@ -44,7 +44,7 @@ private:
     }
 
     void handlePropertyChange(gh::Build& b) {
-
+        _controller->setSetting(b.name, b.value);
     }
 
     static void staticPropertyHandler(gh::Build& b) {
@@ -57,7 +57,7 @@ private:
         b.Title("Boiler control");
         b.Slider_(STR(HeatingSpIndex), &_setups).label("Heating setpoint").range(38, 75, 0.1).unit(" °C").attach(staticPropertyHandler);
         b.Slider_(STR(HeatingSpFsIndex), &_setups).label("Heating setpoint in FS").range(38, 75, 0.1).unit(" °C").attach(staticPropertyHandler);
-        b.Slider_(STR(DhwSpIndex), &_setups).label("Heating setpoint").range(38, 60, 1).unit(" °C").attach(staticPropertyHandler);
+        b.Slider_(STR(DhwSpIndex), &_setups).label("DHW setpoint").range(38, 60, 1).unit(" °C").attach(staticPropertyHandler);
         {
             gh::Row r(b);
             b.Switch_(STR(HeatingEnIndex), &_setups).label("Heating enable").attach(staticPropertyHandler);
@@ -66,6 +66,7 @@ private:
         if (_writeDataStatus != ModbusMaster::ku8MBSuccess) {
             b.Text(BoilerErrors::GetConnectionErrorDescription(_writeDataStatus)).label("Write data error");
         }
+        b.LED_("SyncLed").value(_controller->IsSynchronized).label("Settings synchronized");
         if (b.changed()) { 
             b.refresh();
         }
@@ -90,7 +91,13 @@ private:
         Serial.print("CLI: ");
         Serial.println(str);
         if (str == "state") {
-            _hub->sendCLI(_controller->State->GetBoilerData());
+            _hub->sendCLI(_controller->State->ToString());
+        } else if (str == "stateRaw") {
+            _hub->sendCLI(_controller->getRawDataString());
+        } else if (str == "setups"){
+            _hub->sendCLI(_controller->getRawSetupsString());
+        } else {
+            _hub->sendCLI("Unknown command. Available commands: state, stateRaw, setups");
         }
     }
 
@@ -112,8 +119,8 @@ public:
 
     void Setup() {
         _setups = PairsFile(&GH_FS, "/boilerSetups.dat", 3000);
-        _hub->mqtt.config("test.mosquitto.org", 1883);
-        _hub->config(F(Prefix), F("Ebus adapter"), F("f2cc"));
+        _hub->mqtt.config(MqttHost, MqttPort, MqttLogin, MqttPass);
+        _hub->config(Prefix, HubName, HubIcon);
         _hub->onBuild([this](gh::Builder& b) { this->build(b); });
         _hub->onInfo([this](gh::Info& b) { this->getInfo(b); });
         _hub->onCLI([this](String str) { this->handleCLI(str); });
@@ -128,8 +135,8 @@ public:
         _setups.tick();
         _hub->tick();
         if (_updateTimer) {
-            _lastUpdateStatus = _controller->updateState();
-            _writeDataStatus = _controller->syncronizeSettings();
+            //_lastUpdateStatus = _controller->updateState();
+            //_writeDataStatus = _controller->syncronizeSettings();
         }
     }
     

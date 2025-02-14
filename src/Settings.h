@@ -60,11 +60,20 @@
 #define RE_DE_PIN 14  // GPIO14 (D5)
 #define AdapterAdress 0x18
 #define AdapterRefreshTime 1000
-#define Prefix "Vicitacal"
+#define HubIcon "f2cc"
+#define HubName "Boiler controller"
+#define Prefix "vicitacal-dev"
+#define MqttHost "vicitacal.isgood.host"
+#define MqttPort 1883
+#define MqttLogin "vicitacal"
+#define MqttPass "789654_As"
 
 
 #define AP_SSID "Vitaya"
 #define AP_PASS "789654_As"
+
+// #define AP_SSID "Wifi-vitalik"
+// #define AP_PASS "abcdefgh"
 
 #define STR_HELPER(x) #x
 #define STR(x) STR_HELPER(x)

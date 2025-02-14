@@ -2,13 +2,14 @@
 #include <ModbusMaster.h>
 #include <SoftwareSerial.h>
 #include <GyverHub.h>
+#include <EbusController.h>
 #include <ViewHandler.h>
 
 SoftwareSerial adapterSerial = SoftwareSerial(RX_ADAPTER, TX_ADAPTER);
 ModbusMaster node = ModbusMaster();
 BoilerEbusController controller = BoilerEbusController(node);
-GyverHub hub("MyDevices", "ESP8266", "");
-ViewHandler view(hub, controller);
+GyverHub hub = GyverHub();
+ViewHandler view = ViewHandler(hub, controller);
 
 void preTransmission() {
   digitalWrite(RE_DE_PIN, HIGH);
@@ -18,15 +19,14 @@ void postTransmission() {
 }
 
 void setup() {
+  Serial.begin(115200);
   adapterSerial.begin(19200, SWSERIAL_8N1);
   adapterSerial.listen();
-  Serial.begin(115200);
   pinMode(RE_DE_PIN, OUTPUT);
   digitalWrite(RE_DE_PIN, LOW);
   node.preTransmission(preTransmission);
   node.postTransmission(postTransmission);
   node.begin(AdapterAdress, adapterSerial);
-
   WiFi.mode(WIFI_STA);
   WiFi.begin(AP_SSID, AP_PASS);
   while (WiFi.status() != WL_CONNECTED) {
