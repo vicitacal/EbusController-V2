@@ -63,8 +63,8 @@ void BoilerEbusController::setSetting(boilerSetting setting, uint16_t value) {
 uint8_t BoilerEbusController::syncronizeSettings() {
     if (IsSynchronized) { return ModbusMaster::ku8MBSuccess; }
     _master->clearTransmitBuffer();
-    _master->setTransmitBuffer(0, _currentSettings.heatingSetpoint);
-    _master->setTransmitBuffer(1, _currentSettings.heatingSetpointFS);
+    _master->setTransmitBuffer(0, _currentSettings.heatingSetpoint * 10);
+    _master->setTransmitBuffer(1, _currentSettings.heatingSetpointFS * 10);
     auto returnCode = _master->writeMultipleRegisters(boilerRegister::heatingSetpointAdr, 2);
     if (returnCode != ModbusMaster::ku8MBSuccess) {
         return returnCode;
@@ -88,16 +88,18 @@ void BoilerEbusController::printState() {
 
 String BoilerEbusController::getRawDataString() {
     String result;
+    int dataCount = 0;
     for (uint8_t i = 0; i < RawDataSize; i++) {
         result += to_hex(_rawData[i]);
+        dataCount++;
+        if (dataCount >= 4) {
+            dataCount = 0;
+            result += '\n';
+        }
     }
     return result;
 }
 
 String BoilerEbusController::getRawSetupsString() {
-    String result;
-    for (uint8_t i = 0; i < RawDataSize; i++) {
-        result += to_hex(_rawData[i]);
-    }
-    return result;
+    return _currentSettings.ToString();
 }

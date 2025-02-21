@@ -4,6 +4,7 @@
 #include <GyverHub.h>
 #include <BoilerErrors.h>
 #include <PairsFile.h>
+#include <BuildInfo.h>
 
 class ViewHandler {
 
@@ -16,6 +17,8 @@ private:
             info.add("Adapter hw version", _controller->State->adapterHwVersion);
             info.add("Adapter sw version", _controller->State->adapterSwVersion);
             info.add("Adapter type", _controller->State->getAdapterTypeName());
+            info.add("Build number", BUILD_NUMBER);
+            info.add("Build date", BUILD_DATE);
             break;
             default: break;
         }
@@ -127,6 +130,10 @@ public:
         _hub->onUpload([this](String path) { if (path == "/boilerSetups.dat") { _setups.begin(); }});
         _hub->begin();
         _setups.begin();
+        for (uint16_t i = 0; i < _setups.amount(); i++) {
+            auto pair = _setups.get(i);
+            _controller->setSetting(pair.key, pair);
+        }
         _hub->setBufferSize(2000);
         _updateTimer = gh::Timer(AdapterRefreshTime);
     }
@@ -135,8 +142,8 @@ public:
         _setups.tick();
         _hub->tick();
         if (_updateTimer) {
-            //_lastUpdateStatus = _controller->updateState();
-            //_writeDataStatus = _controller->syncronizeSettings();
+            _lastUpdateStatus = _controller->updateState();
+            _writeDataStatus = _controller->syncronizeSettings();
         }
     }
     

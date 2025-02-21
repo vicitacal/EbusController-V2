@@ -31,14 +31,8 @@
 #define GH_REBOOT_DELAY 1500    // задержка перед перезагрузкой после OTA (для esp)
 
 // PORTAL
-//#define GH_FILE_PORTAL     // загружать сайт из памяти есп (положи файлы в папку /hub/) (для esp)
+#define GH_FILE_PORTAL     // загружать сайт из памяти есп (положи файлы в папку /hub/) (для esp)
 #define GH_INCLUDE_PORTAL  // включить сайт в память программы, ~50кБ (не нужно загружать файлы в память) (для esp)
-
-// HTTP
-#define GH_PUBLIC_PATH "/www"          // путь к папке с файлами с HTTP доступом (для esp)
-#define GH_HTTP_PORT 80                // http порт (для esp)
-#define GH_CACHE_PRD "max-age=604800"  // период кеширования файлов для портала (для esp)
-
 #define GH_NO_HTTP_TRANSFER       // отключить загрузку/скачивание/ОТА по http (для esp)
 #define GH_NO_HTTP_DNS            // отключить DNS сервер (для esp)
 #define GH_NO_HTTP_OTA            // отключить ОТА обновления по http (для esp)
@@ -47,6 +41,11 @@
 #define GH_NO_HTTP_UPLOAD         // отключить загрузку файлов по http (для esp)
 #define GH_NO_HTTP_UPLOAD_PORTAL  // упрощённую загрузку файлов с ip/hub/upload_portal (для esp)
 #endif
+
+// HTTP
+#define GH_PUBLIC_PATH "/www"          // путь к папке с файлами с HTTP доступом (для esp)
+#define GH_HTTP_PORT 80                // http порт (для esp)
+#define GH_CACHE_PRD "max-age=604800"  // период кеширования файлов для портала (для esp)
 
 #define HeatingSpIndex 1
 #define HeatingSpFsIndex 2
