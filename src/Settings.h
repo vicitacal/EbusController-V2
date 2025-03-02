@@ -53,6 +53,7 @@
 #define HeatingEnIndex 4
 #define DhwEnIndex 5
 
+#define MqttId 0x0A1B2C //ID устройства вида 0xXXXXXX 
 #define ProgramVersion "1.0.0"
 #define TX_ADAPTER 0  // GPIO0 (D3)
 #define RX_ADAPTER 2  // GPIO2 (D4)

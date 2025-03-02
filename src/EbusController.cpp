@@ -60,6 +60,10 @@ void BoilerEbusController::setSetting(boilerSetting setting, uint16_t value) {
     IsSynchronized = false;
 }
 
+void BoilerEbusController::attachPropertyChanged(void (*handler)()) {
+    _handler = handler;
+}
+
 uint8_t BoilerEbusController::syncronizeSettings() {
     if (IsSynchronized) { return ModbusMaster::ku8MBSuccess; }
     _master->clearTransmitBuffer();
@@ -79,6 +83,9 @@ uint8_t BoilerEbusController::syncronizeSettings() {
     _master->setTransmitBuffer(0, _currentSettings.modeFlags.flags);
     returnCode = _master->writeMultipleRegisters(boilerRegister::modesAdr, 1);
     IsSynchronized = returnCode == ModbusMaster::ku8MBSuccess;
+    if (IsSynchronized && _handler) {
+        _handler();
+    }
     return returnCode;
 }
 

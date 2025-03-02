@@ -89,6 +89,7 @@ public:
     uint8_t writeValue(boilerRegister option, uint16_t value);
     void setSetting(su::AnyText option, uint16_t value);
     void setSetting(boilerSetting setting, uint16_t value);
+    void attachPropertyChanged(void (*handler)());
     void printState();
     String getRawDataString();
     String getRawSetupsString();
@@ -98,6 +99,7 @@ public:
 
 private:
 
+    void (*_handler)();
     ModbusMaster* _master;
     uint16_t _rawData[RawDataSize];
     boilerSettings _currentSettings = boilerSettings();

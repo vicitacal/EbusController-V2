@@ -8,8 +8,7 @@
 SoftwareSerial adapterSerial = SoftwareSerial(RX_ADAPTER, TX_ADAPTER);
 ModbusMaster node = ModbusMaster();
 BoilerEbusController controller = BoilerEbusController(node);
-GyverHub hub = GyverHub();
-ViewHandler view = ViewHandler(hub, controller);
+ViewHandler view = ViewHandler(controller);
 
 void preTransmission() {
   digitalWrite(RE_DE_PIN, HIGH);

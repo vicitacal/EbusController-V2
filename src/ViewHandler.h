@@ -5,6 +5,7 @@
 #include <BoilerErrors.h>
 #include <PairsFile.h>
 #include <BuildInfo.h>
+#include <BoilerMqtt.h>
 
 class ViewHandler {
 
@@ -48,11 +49,18 @@ private:
 
     void handlePropertyChange(gh::Build& b) {
         _controller->setSetting(b.name, b.value);
+        _hub.update(b.name);
     }
 
     static void staticPropertyHandler(gh::Build& b) {
         if (_instance) {
             _instance->handlePropertyChange(b);
+        }
+    }
+
+    static void handleSynchronize() {
+        if (_instance) {
+            _instance->_hub.update("SyncLed");
         }
     }
 
@@ -78,7 +86,7 @@ private:
     void build(gh::Builder& b) {
         Serial.println("On update");
         b.Menu(F("Info;Control"));
-        switch (_hub->menu) {
+        switch (_hub.menu) {
         case 0:
             buildInfo(b);
             break;
@@ -94,19 +102,20 @@ private:
         Serial.print("CLI: ");
         Serial.println(str);
         if (str == "state") {
-            _hub->sendCLI(_controller->State->ToString());
+            _hub.sendCLI(_controller->State->ToString());
         } else if (str == "stateRaw") {
-            _hub->sendCLI(_controller->getRawDataString());
+            _hub.sendCLI(_controller->getRawDataString());
         } else if (str == "setups"){
-            _hub->sendCLI(_controller->getRawSetupsString());
+            _hub.sendCLI(_controller->getRawSetupsString());
         } else {
-            _hub->sendCLI("Unknown command. Available commands: state, stateRaw, setups");
+            _hub.sendCLI("Unknown command. Available commands: state, stateRaw, setups");
         }
     }
 
     static ViewHandler* _instance;
     PairsFile _setups;
-    GyverHub* _hub;
+    GyverHub _hub;
+    BoilerMqtt _mqtt;
     BoilerEbusController* _controller;
     gh::Timer _updateTimer;
     uint8_t _lastUpdateStatus = 0;
@@ -114,33 +123,37 @@ private:
     
 public:
 
-    ViewHandler(GyverHub& hub, BoilerEbusController& controller) {
-        _hub = &hub;
+    ViewHandler(BoilerEbusController& controller) {
         _controller = &controller;
         _instance = this;
     }
 
     void Setup() {
         _setups = PairsFile(&GH_FS, "/boilerSetups.dat", 3000);
-        _hub->mqtt.config(MqttHost, MqttPort, MqttLogin, MqttPass);
-        _hub->config(Prefix, HubName, HubIcon);
-        _hub->onBuild([this](gh::Builder& b) { this->build(b); });
-        _hub->onInfo([this](gh::Info& b) { this->getInfo(b); });
-        _hub->onCLI([this](String str) { this->handleCLI(str); });
-        _hub->onUpload([this](String path) { if (path == "/boilerSetups.dat") { _setups.begin(); }});
-        _hub->begin();
+        _mqtt = BoilerMqtt();
+        _mqtt.config(MqttHost, MqttPort, MqttLogin, MqttPass);
+        _hub.mqtt.config(MqttHost, MqttPort, MqttLogin, MqttPass);
+        _hub.config(Prefix, HubName, HubIcon, MqttId);
+
+        _hub.onBuild([this](gh::Builder& b) { this->build(b); });
+        _hub.onInfo([this](gh::Info& b) { this->getInfo(b); });
+        _hub.onCLI([this](String str) { this->handleCLI(str); });
+        _hub.onUpload([this](String path) { if (path == "/boilerSetups.dat") { _setups.begin(); }});
+        _hub.begin();
         _setups.begin();
         for (uint16_t i = 0; i < _setups.amount(); i++) {
             auto pair = _setups.get(i);
             _controller->setSetting(pair.key, pair);
         }
-        _hub->setBufferSize(2000);
+        _hub.setBufferSize(2000);
+        _controller->attachPropertyChanged(handleSynchronize);
         _updateTimer = gh::Timer(AdapterRefreshTime);
     }
 
     void Tick() {
         _setups.tick();
-        _hub->tick();
+        _mqtt.tick();
+        _hub.tick();
         if (_updateTimer) {
             _lastUpdateStatus = _controller->updateState();
             _writeDataStatus = _controller->syncronizeSettings();
