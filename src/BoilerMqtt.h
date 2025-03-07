@@ -22,6 +22,7 @@ public:
         _config(login, pass, qos, ret);
         if (mqId <= 0xfffff) { mqId += 0xfffff; }
         ultoa(mqId, this->_id, HEX);
+        begin();
     }
 
     bool online() {
@@ -45,9 +46,9 @@ public:
         _mqtt.endPublish();
     }
 
-    // void onMessage(std::function<void (GHTXT, GHTXT)> func) {
-    //     _parseCallback = func;
-    // }
+    void onMessage(std::function<void (GHTXT, GHTXT)> func) {
+        _parseCallback = func;
+    }
 
 private:
 
@@ -60,7 +61,7 @@ private:
     String _host;
     String _login;
     String _pass;
-    //std::function<void (GHTXT, GHTXT)> _parseCallback;
+    std::function<void (GHTXT, GHTXT)> _parseCallback;
 
     char _id[9] = {'\0'};
     String _prefix;
@@ -103,12 +104,16 @@ private:
         } 
         
         if (ok) {
-            _mqtt.subscribe(MqttSensorUp, _qos);
+            if (_mqtt.subscribe(MqttSensorUp, _qos)){
+                Serial.println("Subscribed");
+            } else {
+                Serial.println("Subscribe error");
+            }
         }
     }
 
     void parse(GHTXT url, GHTXT data = GHTXT()) {
-        // if (!_parseCallback || !url.valid()) { return; }
+        if (!_parseCallback || !url.valid()) { return; }
         if (!data.valid()) {
             char* eq = (char*)url.find('=');
             if (eq) {
@@ -117,7 +122,7 @@ private:
                 url = GHTXT(url.str(), eq - url.str());
             }
         }
-        //_parseCallback(url, data);
+        _parseCallback(url, data);
     }
 
     void _config(const String& login, const String& pass, uint8_t nqos, bool nret) {

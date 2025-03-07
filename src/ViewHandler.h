@@ -6,6 +6,7 @@
 #include <PairsFile.h>
 #include <BuildInfo.h>
 #include <BoilerMqtt.h>
+#include <ArduinoJson.h>
 
 class ViewHandler {
 
@@ -83,15 +84,34 @@ private:
         }
     }
 
+    void buildSensors(gh::Builder& b) {
+        b.Title("Sensors");
+        b.Time_("s_uptime");
+        {
+            gh::Row r(b);
+            b.Gauge_("s_temp").label("Temperature").unit(" °C").range(-10, 50, 0.1);
+            b.Gauge_("s_hum").label("Humidity").unit(" %").range(-10, 50, 1);
+            b.Gauge_("s_co2").label("Carbon dioxide").range(0, 4000, 1);
+        }
+        {
+            gh::Row r(b);
+            b.Gauge_("s_pm25").label("pm25").range(0, 60, 1);
+            b.Gauge_("s_pm10").label("pm10").range(0, 60, 1);
+        }
+    }
+
     void build(gh::Builder& b) {
         Serial.println("On update");
-        b.Menu(F("Info;Control"));
+        b.Menu(F("Info;Control;Sensors"));
         switch (_hub.menu) {
         case 0:
             buildInfo(b);
             break;
         case 1:
             buildControl(b);
+            break;
+        case 2:
+            buildSensors(b);
             break;
         default:
             break;
@@ -112,10 +132,26 @@ private:
         }
     }
 
-    // void parseMessage(GHTXT url, GHTXT data) {
-    //     // _hub.sendCLI(url);
-    //     // _hub.sendCLI(data);
-    // }
+    void parseMessage(GHTXT url, GHTXT data) {
+        Serial.print("Message from");
+        Serial.println(url);
+        JsonDocument doc;
+        auto error = deserializeJson(doc, (String)data);
+        if (error) {
+            Serial.print(F("deserializeJson() failed: "));
+            Serial.println(error.f_str());
+            return;
+        }
+        if (doc["type"] != "12") { return; }
+        JsonObject sensorData_0 = doc["sensorData"][0];
+        Serial.print("Bat: ");
+        Serial.println((int)sensorData_0["battery"]["value"]);
+        Serial.print("Co2: ");
+        Serial.println((int)sensorData_0["co2"]["value"]);
+        // gh::Update upd(&_hub);
+        // upd.update("s_temp").value();
+        // upd.send();
+    }
 
     static ViewHandler* _instance;
     PairsFile _setups;
@@ -136,8 +172,7 @@ public:
     void Setup() {
         _setups = PairsFile(&GH_FS, "/boilerSetups.dat", 3000);
         _mqtt = BoilerMqtt();
-        //std::function<void (GHTXT, GHTXT)> parseCallback = std::bind(&ViewHandler::parseMessage, this, std::placeholders::_1, std::placeholders::_2);
-        //_mqtt.onMessage(parseCallback);
+        _mqtt.onMessage([this](GHTXT url, GHTXT data){ parseMessage(url, data); });
         _mqtt.config(MqttHost, MqttPort, MqttLogin, MqttPass, MqttId, MqttPrefix);
         _hub.mqtt.config(MqttHost, MqttPort, MqttLogin, MqttPass);
         _hub.config(MqttPrefix, HubName, HubIcon, MqttId);
