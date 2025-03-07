@@ -53,7 +53,9 @@
 #define HeatingEnIndex 4
 #define DhwEnIndex 5
 
-#define MqttId 0x0A1B2C //ID устройства вида 0xXXXXXX 
+#define MqttSensorUp "qingping/CCB5D1326750/up"
+#define MqttSensorDown "qingping/CCB5D1326750/down"
+#define MqttId 0xA1B2C3 //ID устройства вида 0xXXXXXX 
 #define ProgramVersion "1.0.0"
 #define TX_ADAPTER 0  // GPIO0 (D3)
 #define RX_ADAPTER 2  // GPIO2 (D4)
@@ -62,7 +64,7 @@
 #define AdapterRefreshTime 1000
 #define HubIcon "f2cc"
 #define HubName "Boiler controller"
-#define Prefix "vicitacal-dev"
+#define MqttPrefix "vicitacal-dev"
 #define MqttHost "vicitacal.isgood.host"
 #define MqttPort 1883
 #define MqttLogin "vicitacal"

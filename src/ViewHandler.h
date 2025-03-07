@@ -112,6 +112,11 @@ private:
         }
     }
 
+    // void parseMessage(GHTXT url, GHTXT data) {
+    //     // _hub.sendCLI(url);
+    //     // _hub.sendCLI(data);
+    // }
+
     static ViewHandler* _instance;
     PairsFile _setups;
     GyverHub _hub;
@@ -131,9 +136,11 @@ public:
     void Setup() {
         _setups = PairsFile(&GH_FS, "/boilerSetups.dat", 3000);
         _mqtt = BoilerMqtt();
-        _mqtt.config(MqttHost, MqttPort, MqttLogin, MqttPass);
+        //std::function<void (GHTXT, GHTXT)> parseCallback = std::bind(&ViewHandler::parseMessage, this, std::placeholders::_1, std::placeholders::_2);
+        //_mqtt.onMessage(parseCallback);
+        _mqtt.config(MqttHost, MqttPort, MqttLogin, MqttPass, MqttId, MqttPrefix);
         _hub.mqtt.config(MqttHost, MqttPort, MqttLogin, MqttPass);
-        _hub.config(Prefix, HubName, HubIcon, MqttId);
+        _hub.config(MqttPrefix, HubName, HubIcon, MqttId);
 
         _hub.onBuild([this](gh::Builder& b) { this->build(b); });
         _hub.onInfo([this](gh::Info& b) { this->getInfo(b); });
@@ -152,8 +159,8 @@ public:
 
     void Tick() {
         _setups.tick();
-        _mqtt.tick();
         _hub.tick();
+        _mqtt.tick();
         if (_updateTimer) {
             _lastUpdateStatus = _controller->updateState();
             _writeDataStatus = _controller->syncronizeSettings();
