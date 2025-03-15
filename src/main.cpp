@@ -6,8 +6,8 @@
 #include <ViewHandler.h>
 
 SoftwareSerial adapterSerial = SoftwareSerial(RX_ADAPTER, TX_ADAPTER);
-ModbusMaster node = ModbusMaster();
-BoilerEbusController controller = BoilerEbusController(node);
+ModbusMaster modbusNode = ModbusMaster();
+BoilerEbusController controller = BoilerEbusController(modbusNode);
 ViewHandler view = ViewHandler(controller);
 
 void preTransmission() {
@@ -23,9 +23,9 @@ void setup() {
   adapterSerial.listen();
   pinMode(RE_DE_PIN, OUTPUT);
   digitalWrite(RE_DE_PIN, LOW);
-  node.preTransmission(preTransmission);
-  node.postTransmission(postTransmission);
-  node.begin(AdapterAdress, adapterSerial);
+  modbusNode.preTransmission(preTransmission);
+  modbusNode.postTransmission(postTransmission);
+  modbusNode.begin(AdapterAdress, adapterSerial);
   WiFi.mode(WIFI_STA);
   WiFi.begin(AP_SSID, AP_PASS);
   while (WiFi.status() != WL_CONNECTED) {
