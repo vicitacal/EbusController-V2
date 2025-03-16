@@ -90,7 +90,6 @@ private:
     }
 
     void build(gh::Builder& b) {
-        Serial.println("On build");
         b.Menu(F("Info;Control;Sensors"));
         switch (_hub.menu) {
         case 0:
@@ -147,7 +146,7 @@ private:
     String _updateSensorString;
     GyverHub _hub;
     BoilerMqtt _mqtt;
-    gh::Timer _updateTimer;
+    gh::Timer _updateTimer = gh::Timer(AdapterRefreshTime);
     static ViewHandler* _instance;
     uint8_t _lastUpdateStatus = 0;
     uint8_t _writeDataStatus = 0;
@@ -177,7 +176,6 @@ public:
         _sensors.AttachStateUpdate([this]() { this->UpdateSensors(); });
         _sensors.Begin();
         _controller.attachPropertySync([this]() { this->_hub.update("SyncLed"); });
-        _updateTimer = gh::Timer(AdapterRefreshTime);
     }
 
     void Tick() {

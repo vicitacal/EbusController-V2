@@ -1,17 +1,25 @@
 
+#define PropWithSetter(type, name) \
+    type name; \
+    void Set##name(type value) { \
+        if (value == name) { return; }\
+        name = value; \
+        _stateChanged = true; \
+    }
+
 struct SensorsState {
 
     static const int SensorsCount = 9;
     
     int Uptime;
-    float InsideTemperatureQuinping;
-    float InsideTemperatureDs;
-    float OutsideTemperature;
-    int Humidity;
-    int Battery;
-    int Pm25;
-    int Pm10;
-    int CarbonDioxide;
+    PropWithSetter(float, InsideTemperatureQuinping)
+    PropWithSetter(float, InsideTemperatureDs)
+    PropWithSetter(float, OutsideTemperature)
+    PropWithSetter(int, Humidity)
+    PropWithSetter(int, Battery)
+    PropWithSetter(int, Pm25)
+    PropWithSetter(int, Pm10)
+    PropWithSetter(int, CarbonDioxide)
 
     String UptimeString = String("No data");
 
@@ -20,7 +28,15 @@ struct SensorsState {
         UptimeString = TimespanToString(uptime);
     }
 
+    bool IsStateChanged() {
+        if (!_stateChanged) { return false; }
+        _stateChanged = false;
+        return true;
+    }
+
 private:
+
+    bool _stateChanged = false;
 
     static String TimespanToString(int totalSeconds) {
         int days = totalSeconds / (24 * 3600);

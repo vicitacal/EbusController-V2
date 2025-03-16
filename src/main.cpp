@@ -5,24 +5,24 @@
 #include <EbusController.h>
 #include <ViewHandler.h>
 
-SoftwareSerial adapterSerial = SoftwareSerial(RX_ADAPTER, TX_ADAPTER);
+SoftwareSerial adapterSerial = SoftwareSerial(ModbusRxPin, ModbusTxPin);
 ModbusMaster modbusNode = ModbusMaster();
 BoilerEbusController controller = BoilerEbusController(modbusNode);
 ViewHandler view = ViewHandler(controller);
 
 void preTransmission() {
-  digitalWrite(RE_DE_PIN, HIGH);
+  digitalWrite(ModbusReDePin, HIGH);
 }
 void postTransmission() {
-  digitalWrite(RE_DE_PIN, LOW);
+  digitalWrite(ModbusReDePin, LOW);
 }
 
 void setup() {
   Serial.begin(115200);
   adapterSerial.begin(19200, SWSERIAL_8N1);
   adapterSerial.listen();
-  pinMode(RE_DE_PIN, OUTPUT);
-  digitalWrite(RE_DE_PIN, LOW);
+  pinMode(ModbusReDePin, OUTPUT);
+  digitalWrite(ModbusReDePin, LOW);
   modbusNode.preTransmission(preTransmission);
   modbusNode.postTransmission(postTransmission);
   modbusNode.begin(AdapterAdress, adapterSerial);
