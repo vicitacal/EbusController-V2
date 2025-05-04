@@ -1,5 +1,6 @@
 #pragma once
 #include <cstdint>
+#include <ModbusMaster.h>
 
 enum errorCode : uint16_t {
     NoError = 0,

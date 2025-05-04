@@ -10,7 +10,7 @@ String to_binary(uint16_t value) {
 }
 
 String to_hex(uint16_t value) {
-    char buffer[7];
+    char buffer[8];
     std::snprintf(buffer, sizeof(buffer), "0x%04X;", value);
     return String(buffer);
 }

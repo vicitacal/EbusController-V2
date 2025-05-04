@@ -1,4 +1,5 @@
 #pragma once
+#include <UserCredentials.h>
 
 #if 0
 //#define GH_NO_STREAM  // отключить встроенный модуль связи stream
@@ -59,25 +60,23 @@
 #define OneWireBusPin 12  // GPIO12 (D6)
 #define OneWireRefreshTime 1000
 
-#define ProgramVersion "1.1.0"
+#define ProgramVersion "1.2.0"
 #define AdapterAdress 0x18
 #define AdapterRefreshTime 1000
 #define HubIcon "f2cc"
 #define HubName "Boiler controller"
 #define MqttSensorUp "qingping/CCB5D1326750/up"
 #define MqttSensorDown "qingping/CCB5D1326750/down"
-#define MqttId 0xA1B2C3 //ID устройства вида 0xXXXXXX 
-#define MqttPrefix "vicitacal-dev"
-#define MqttHost "vicitacal.isgood.host"
-#define MqttPort 1883
-#define MqttLogin "vicitacal"
-#define MqttPass "789654_As"
+#define BoilerInfoWidgetsCount 11
 
-#define AP_SSID "Vitaya"
-#define AP_PASS "789654_As"
-
-// #define AP_SSID "Wifi-vitalik"
-// #define AP_PASS "abcdefgh"
+// #define MqttId
+// #define MqttPrefix
+// #define MqttHost 
+// #define MqttPort
+// #define MqttLogin
+// #define MqttPass
+// #define AP_SSID
+// #define AP_PASS
 
 #define STR_HELPER(x) #x
 #define STR(x) STR_HELPER(x)

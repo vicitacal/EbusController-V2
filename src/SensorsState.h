@@ -29,9 +29,12 @@ struct SensorsState {
     }
 
     bool IsStateChanged() {
-        if (!_stateChanged) { return false; }
-        _stateChanged = false;
-        return true;
+        if (_stateChanged) { 
+            _stateChanged = false;
+            return true;
+        } else {
+            return false; 
+        }
     }
 
 private:
