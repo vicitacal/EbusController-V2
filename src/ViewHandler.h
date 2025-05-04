@@ -28,7 +28,7 @@ private:
 
     void buildInfo(gh::Builder& b) {
         b.Title("Boiler info");
-        bool isDisconnected = _controller.RawState->connectionStatus == 0;
+        bool isDisconnected = !_controller.State.connectionStatus;
         b.Icon_("A0", &_controller.State.connectionStatus).icon("f1e6").label("Connection");
         if (isDisconnected) {
             b.Text_("A10", su::Text(_controller.State.connectionErrorDescription)).label("Connection error");
@@ -54,7 +54,7 @@ private:
         b.Slider_(STR(HeatingSpFsIndex), &_setups).label("Heating setpoint in FS").range(38, 75, 0.1).unit(" °C").attach(staticPropertyHandler);
         b.Slider_(STR(DhwSpIndex), &_setups).label("DHW setpoint").range(38, 60, 1).unit(" °C").attach(staticPropertyHandler);
         if (_writeDataStatus != ModbusMaster::ku8MBSuccess) {
-            b.Text(_controller.State.connectionErrorDescription).label("Write data error");
+            b.Text(BoilerErrors::GetConnectionErrorDescription(_writeDataStatus)).label("Write data error");
         }
         {
             gh::Row r(b);
@@ -127,7 +127,7 @@ private:
             }
             break;
         case 1:
-            this->_hub.sendUpdate("SyncLed");
+            _hub.sendUpdate("SyncLed");
             break;
         case 2:
             _hub.sendUpdate(_updateSensorString);
@@ -137,11 +137,19 @@ private:
         }
     }
 
+    void setWriteDataStatus(uint8_t value) {
+        if (_writeDataStatus != value) {
+            _writeDataStatus = value;
+            if (_hub.menu == 1) {
+                _hub.sendRefresh();
+            }
+        }
+    }
+
     static void staticPropertyHandler(gh::Build& b) {
         if (_instance) {
             _instance->_controller.setSetting(b.name, b.value);
             _instance->UpdateWidgets();
-            //_instance->_hub.sendUpdate(b.name);
         }
     }
 
@@ -165,6 +173,7 @@ private:
     GyverHub _hub;
     BoilerMqtt _mqtt;
     gh::Timer _updateTimer = gh::Timer(AdapterRefreshTime);
+    gh::Timer _sendDataTimer = gh::Timer(SendDataTime);
     static ViewHandler* _instance;
     uint8_t _writeDataStatus = 0;
     
@@ -205,9 +214,14 @@ public:
         _hub.tick();
         _controller.tick();
         if (_updateTimer) {
+            bool oldConnection = _controller.State.connectionStatus;
             _controller.updateState();
-            _writeDataStatus = _controller.syncronizeSettings();
+            if (oldConnection != _controller.State.connectionStatus) { _hub.sendRefresh(); }
+            setWriteDataStatus(_controller.syncronizeSettings());
             if (_hub.menu == 0) { UpdateWidgets(); }
+        }
+        if (_sendDataTimer) {
+            _sensors.sendData();
         }
     }
     

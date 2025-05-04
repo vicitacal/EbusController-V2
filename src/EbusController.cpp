@@ -9,10 +9,13 @@ BoilerEbusController::BoilerEbusController(ModbusMaster &master) : _master(maste
 uint8_t BoilerEbusController::updateState() {
 
     auto returnCode = _master.readHoldingRegisters(0x10, 0x14);
+    State.setConnectionErrorCode(returnCode);
     if (returnCode != ModbusMaster::ku8MBSuccess) {
+        State.connectionStatus = false;
         return returnCode;
     }
     if (_master.available() < sizeof(BoilerRawData) / 2) {
+        State.connectionStatus = false;
         return ModbusMaster::ku8MBIllegalDataValue;
     }
     for (uint8_t i = 0; i < sizeof(BoilerRawData) / 2; i++) {
@@ -28,7 +31,6 @@ uint8_t BoilerEbusController::updateState() {
     State.setUptime(RawState->uptime);
     State.setAdapterType(RawState->adapterType);
     State.setErrorCode(RawState->mainErrorCode);
-    State.setConnectionErrorCode(returnCode);
     return returnCode;
 
 }

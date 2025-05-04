@@ -63,6 +63,7 @@
 #define ProgramVersion "1.2.0"
 #define AdapterAdress 0x18
 #define AdapterRefreshTime 1000
+#define SendDataTime 60000
 #define HubIcon "f2cc"
 #define HubName "Boiler controller"
 #define MqttSensorUp "qingping/CCB5D1326750/up"

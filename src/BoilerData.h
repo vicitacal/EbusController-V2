@@ -35,7 +35,7 @@ struct BoilerData {
     }
 
     void setConnectionErrorCode(uint8_t value) {
-        connectionErrorDescription = BoilerErrors::GetConnectionErrorDescription((errorCode)value);
+        connectionErrorDescription = BoilerErrors::GetConnectionErrorDescription(value);
     }
 
     void setUptime(uint32_t seconds) {

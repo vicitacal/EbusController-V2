@@ -41,24 +41,6 @@ private:
         State.SetInsideTemperatureDs(_sensors.getTempC(adr2, 10));
     }
 
-    void sendData() {
-        JsonDocument doc;
-        doc["uptime"] = State.Uptime;
-        doc["insideTemperatureQuinping"] = State.InsideTemperatureQuinping;
-        doc["insideTemperatureDs"] = State.InsideTemperatureDs;
-        doc["outsideTemperature"] = State.OutsideTemperature;
-        doc["humidity"] = State.Humidity;
-        doc["battery"] = State.Battery;
-        doc["pm25"] = State.Pm25;
-        doc["pm10"] = State.Pm10;
-        doc["carbonDioxide"] = State.CarbonDioxide;
-        String jsonData;
-        serializeJson(doc, jsonData);
-        gh::BridgeData data = gh::BridgeData(jsonData);
-        data.topic = "SensorData";
-        _mqtt.send(data);
-    }
-
     BoilerMqtt& _mqtt;
     OneWire _oneWire;
     DallasTemperature _sensors;
@@ -89,6 +71,24 @@ public:
                 }
             }
         }
+    }
+
+    void sendData() {
+        JsonDocument doc;
+        doc["uptime"] = State.Uptime;
+        doc["insideTemperatureQuinping"] = State.InsideTemperatureQuinping;
+        doc["insideTemperatureDs"] = State.InsideTemperatureDs;
+        doc["outsideTemperature"] = State.OutsideTemperature;
+        doc["humidity"] = State.Humidity;
+        doc["battery"] = State.Battery;
+        doc["pm25"] = State.Pm25;
+        doc["pm10"] = State.Pm10;
+        doc["carbonDioxide"] = State.CarbonDioxide;
+        String jsonData;
+        serializeJson(doc, jsonData);
+        gh::BridgeData data = gh::BridgeData(jsonData);
+        data.topic = "SensorData";
+        _mqtt.send(data);
     }
 
     void AttachStateUpdate(std::function<void ()> func){
